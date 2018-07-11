@@ -1,36 +1,37 @@
-import cv2 as cv
 import tensorflow as tf
 
-from time import time
+from os import path
+from time import time, sleep
 from tf_pose import Estimator
-from utils import draw_fps, draw_points
+from ws_publisher import Publisher, poses_to_dto
+from cam_reader import Reader
+
+TF_CONFIG = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
+MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
 
 if __name__ == '__main__':
-    stream = cv.VideoCapture(0)
-    stream.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
-    stream.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
+    reader = Reader(1920, 1080)
+    publisher = Publisher('0.0.0.0', 9090)
+    estimator = Estimator(MODEL_PATH, (656, 368), TF_CONFIG)
 
-    estimator = Estimator(
-        '../models/mobilenet.pb',
-        (656, 368),
-        tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
-    )
+    start_time = time()
+    frame_number = 0
 
     while True:
-        start_time = time()
+        frame_number += 1
+        frame = reader.read()
 
-        ret, frame = stream.read()
-        if not ret: break
+        if frame is None: break
 
         poses = estimator.inference(frame, upsample_size=4.0)
+        publisher.send(poses_to_dto(poses))
 
-        # frame = estimator.draw_humans(frame, poses)
-        frame = draw_points(frame, poses)
-        frame = draw_fps(frame, 'FPS: {}'.format(int(1.0 / (time() - start_time))))
+        sleep(5 / 1000)
 
-        cv.imshow('frame', frame)
-        if cv.waitKey(1) & 0xFF == ord('q'): break
+        elapsed_time = time() - start_time
 
-    stream.release()
-    cv.destroyAllWindows()
+        if elapsed_time >= 1:
+            print('FPS: {}'.format(int(frame_number / elapsed_time)))
 
+            start_time = time()
+            frame_number = 0
