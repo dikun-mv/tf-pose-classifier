@@ -1,6 +1,6 @@
-# vision-service
+# vision-gesture
 
-### Output DTO
+#### Output DTO
 
 ```
 {
