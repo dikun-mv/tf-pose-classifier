@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from os import path
-from time import time, sleep
+from time import time
 from tf_pose import Estimator
 from ws_publisher import Publisher, poses_to_dto
 from cam_reader import Reader
@@ -25,8 +25,6 @@ if __name__ == '__main__':
 
         poses = estimator.inference(frame, upsample_size=4.0)
         publisher.send(poses_to_dto(poses))
-
-        sleep(5 / 1000)
 
         elapsed_time = time() - start_time
 
