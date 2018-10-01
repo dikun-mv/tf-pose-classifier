@@ -1,2 +1,4 @@
 # PyCharm project settings
 .idea
+# VS Code project settings
+.vscode
