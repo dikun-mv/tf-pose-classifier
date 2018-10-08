@@ -1,6 +1,7 @@
 import numpy as np
 import json
 
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 from sklearn.utils import shuffle
 from model import get_model
 
@@ -13,8 +14,8 @@ def load_batch(path):
             with open(file_path.replace('\n', ''), 'r') as data_file:
                 data = json.load(data_file)
 
-                sequence = np.array([np.array(data[i]).flatten() for i in range(0, 100, 1) if i < len(data)])
-                placeholder = np.tile(sequence[-1], (100, 1))
+                sequence = np.array([np.array(data[i]).flatten() for i in range(0, 100, 2) if i < len(data)])
+                placeholder = np.tile(sequence[-1], (50, 1))
                 placeholder[:len(sequence)] = sequence
 
                 batch.append(placeholder)
@@ -23,12 +24,12 @@ def load_batch(path):
 
 
 def load_class_data(name):
-    return {batch: load_batch('data/{}/{}.txt'.format(name, batch)) for batch in
-            ['test', 'training', 'validation', 'real']}
+    return {batch: load_batch('data/{}/{}.txt'.format(name, batch)) if name != 'none' else np.tile(0., (32, 50, 36))
+            for batch in ['test', 'training', 'validation', 'real']}
 
 
 def load_dataset():
-    return {name: load_class_data(name) for name in ['clapping', 'waving']}
+    return {name: load_class_data(name) for name in ['none', 'clapping', 'waving']}
 
 
 def make_vect(idx, len):
@@ -74,7 +75,12 @@ if __name__ == '__main__':
         np.concatenate([X_training, X_validation]), np.concatenate([Y_training, Y_validation]),
         epochs=100,
         batch_size=8,
-        validation_split=0.3
+        validation_split=0.3,
+        callbacks=[
+            ModelCheckpoint(filepath='model-data/model.{epoch:03d}-{val_loss:.3f}.hdf5', verbose=1, save_best_only=True),
+            EarlyStopping(patience=5),
+            CSVLogger('model-data/training.log')
+        ]
     )
     loss, acc = model.evaluate(
         X_test, Y_test,
@@ -85,4 +91,4 @@ if __name__ == '__main__':
         'Test acc: {}\n'.format(acc)
     )
 
-    model.save('pose-classifier.h5')
+    model.save('model-data/pose-classifier.h5')
