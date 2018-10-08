@@ -1,35 +1,62 @@
-import tensorflow as tf
+import numpy as np
 
-from os import path
-from time import time
-from tf_pose import Estimator
-from ws_publisher import Publisher, poses_to_dto
-from cam_reader import Reader
+from keras.models import load_model
+from sklearn.utils import shuffle
 
-TF_CONFIG = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
-MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
+from train import load_dataset, make_vect, load_batch
 
 if __name__ == '__main__':
-    reader = Reader(1920, 1080)
-    publisher = Publisher('0.0.0.0', 9090)
-    estimator = Estimator(MODEL_PATH, (656, 368), TF_CONFIG)
+    dataset = load_dataset()
 
-    start_time = time()
-    frame_number = 0
+    X_test = []
+    Y_test = []
+    X_real = []
+    Y_real = []
 
-    while True:
-        frame_number += 1
-        frame = reader.read()
+    for idx, (name, data) in enumerate(dataset.items()):
+        print(
+            'Idx: {}\n'.format(idx) +
+            'Class: {}\n'.format(name) +
+            'Test batch: {}\n'.format(data['test'].shape) +
+            'Real batch: {}\n'.format(data['real'].shape)
+        )
 
-        if frame is None: break
+        X_test.append(data['test'])
+        Y_test.append(np.array([make_vect(idx, len(dataset)) for _ in range(data['test'].shape[0])]))
+        X_real.append(data['real'])
+        Y_real.append(np.array([make_vect(idx, len(dataset)) for _ in range(data['real'].shape[0])]))
 
-        poses = estimator.inference(frame, upsample_size=4.0)
-        publisher.send(poses_to_dto(poses))
+    X_test, Y_test = shuffle(np.concatenate(X_test), np.concatenate(Y_test))
+    X_real, Y_real = np.concatenate(X_real), np.concatenate(Y_real)
 
-        elapsed_time = time() - start_time
+    model = load_model('pose-classifier.h5')
+    print(model.summary())
 
-        if elapsed_time >= 1:
-            print('FPS: {}'.format(int(frame_number / elapsed_time)))
+    # Z_test = model.predict(X_test)
+    Z_real = model.predict(X_real)
 
-            start_time = time()
-            frame_number = 0
+    # total = 0
+    #
+    # for i in range(len(Y_test)):
+    #     y = np.argmax(Y_test[i])
+    #     z = np.argmax(Z_test[i])
+    #
+    #     if y == z:
+    #         total += 1
+    #
+    #     print('{} - {}'.format(y, z))
+    #
+    # print('{}/{}'.format(total, len(Y_test)))
+
+    total = 0
+
+    for i in range(len(Y_real)):
+        y = np.argmax(Y_real[i])
+        z = np.argmax(Z_real[i])
+
+        if y == z:
+            total += 1
+
+        print('{}({}) - {}({})'.format(y, Y_real[i][y], z, Z_real[i][z]))
+
+    print('{}/{}'.format(total, len(Y_real)))
