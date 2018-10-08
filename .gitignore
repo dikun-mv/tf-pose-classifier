@@ -4,5 +4,6 @@
 .vscode
 # Training data
 data
+model-data
 # Cache
 **/__pycache__

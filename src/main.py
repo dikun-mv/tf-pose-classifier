@@ -9,7 +9,7 @@ from keras.models import load_model
 TF_CONFIG = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
 MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
 CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/pose-classifier.h5'))
-BUFFER_SIZE = 100
+BUFFER_SIZE = 50
 
 
 def poses_to_np(poses):
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         buffer.save(poses_to_np(poses))
 
         if frame_number > BUFFER_SIZE:
-            classes = classifier.predict(np.array(buffer.dump()).reshape((1, 100, 36)))
+            classes = classifier.predict(np.array(buffer.dump()).reshape((1, BUFFER_SIZE, 36)))
 
             for i in range(len(classes)):
                 idx = np.argmax(classes[i])
