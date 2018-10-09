@@ -14,15 +14,16 @@ BUFFER_SIZE = 50
 
 def poses_to_np(poses):
     return np.array(
-        [[poses[0].body_parts[i].x, poses[0].body_parts[i].y] if i in poses[0].body_parts else [0., 0.] for i in
-         range(18)] if poses else [[0., 0.] for i in range(18)]).flatten()
+        [[poses[0].body_parts[i].x, poses[0].body_parts[i].y] if i in poses[0].body_parts else [0., 0.]
+         for i in range(18)] if poses else [[0., 0.] for _ in range(18)]
+    ).flatten()
 
 
 class RingBuffer:
     def __init__(self, size):
         self.head = 0
         self.size = size
-        self.data = [None for _ in range(size)]
+        self.data = np.tile(.0, (size, 36))
 
     def save(self, item):
         if self.head == self.size:
@@ -35,11 +36,23 @@ class RingBuffer:
         return self.data
 
 
+class StackBuffer:
+    def __init__(self, size):
+        self.data = np.tile(.0, (size, 36))
+
+    def save(self, item):
+        self.data[:-1] = self.data[1:]
+        self.data[-1] = item
+
+    def dump(self):
+        return self.data
+
+
 if __name__ == '__main__':
     reader = Reader(1920, 1080)
     estimator = Estimator(MODEL_PATH, (368, 368), TF_CONFIG)
     classifier = load_model(CLASSIFIER_PATH)
-    buffer = RingBuffer(BUFFER_SIZE)
+    buffer = StackBuffer(BUFFER_SIZE)
 
     frame_number = 0
 
@@ -52,9 +65,8 @@ if __name__ == '__main__':
         poses = estimator.inference(frame, upsample_size=4.0)
         buffer.save(poses_to_np(poses))
 
-        if frame_number > BUFFER_SIZE:
-            classes = classifier.predict(np.array(buffer.dump()).reshape((1, BUFFER_SIZE, 36)))
+        classes = classifier.predict(buffer.dump().reshape((1, BUFFER_SIZE, 36)))
 
-            for i in range(len(classes)):
-                idx = np.argmax(classes[i])
-                print('{}: {}'.format(idx, classes[i][idx]))
+        for i in range(len(classes)):
+            idx = np.argmax(classes[i])
+            print('{}: {}'.format(idx, classes[i][idx]))
