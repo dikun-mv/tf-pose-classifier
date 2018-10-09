@@ -4,6 +4,7 @@ from keras.models import load_model
 from sklearn.utils import shuffle
 
 from train import load_dataset, make_vect, load_batch
+from model import get_model
 
 if __name__ == '__main__':
     dataset = load_dataset()
@@ -29,7 +30,8 @@ if __name__ == '__main__':
     X_test, Y_test = shuffle(np.concatenate(X_test), np.concatenate(Y_test))
     X_real, Y_real = np.concatenate(X_real), np.concatenate(Y_real)
 
-    model = load_model('pose-classifier.h5')
+    model = get_model(len(dataset))
+    model.load_weights('model-data/model.018-0.474.hdf5')
     print(model.summary())
 
     # Z_test = model.predict(X_test)

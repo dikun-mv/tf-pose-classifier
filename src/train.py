@@ -14,9 +14,11 @@ def load_batch(path):
             with open(file_path.replace('\n', ''), 'r') as data_file:
                 data = json.load(data_file)
 
-                sequence = np.array([np.array(data[i]).flatten() for i in range(0, 100, 2) if i < len(data)])
-                placeholder = np.tile(sequence[-1], (50, 1))
-                placeholder[:len(sequence)] = sequence
+                point_seq = np.array([np.array(data[i]).flatten() for i in range(0, 100, 2) if i < len(data)])
+                vect_seq = np.array([point_seq[i + 1] - point_seq[i] for i in range(len(point_seq) - 1)])
+
+                placeholder = np.tile(0., (50, 36))
+                placeholder[:len(vect_seq)] = vect_seq
 
                 batch.append(placeholder)
 
@@ -78,7 +80,7 @@ if __name__ == '__main__':
         validation_split=0.3,
         callbacks=[
             ModelCheckpoint(filepath='model-data/model.{epoch:03d}-{val_loss:.3f}.hdf5', verbose=1, save_best_only=True),
-            EarlyStopping(patience=5),
+            EarlyStopping(patience=10),
             CSVLogger('model-data/training.log')
         ]
     )
