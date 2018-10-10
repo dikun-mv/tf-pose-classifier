@@ -70,8 +70,9 @@ if __name__ == '__main__':
         empty = np.tile(.0, (BUFFER_SIZE, 36))
         empty[:len(v_seq)] = v_seq
 
-        classes = classifier.predict(empty.reshape((1, BUFFER_SIZE, 36)))
+        predictions = classifier.predict(empty.reshape((1, BUFFER_SIZE, 36)))
 
-        for i in range(len(classes)):
-            idx = np.argmax(classes[i])
-            print('{}: {}'.format(idx, classes[i][idx]))
+        idx = np.argmax(predictions[0])
+        acc = predictions[0][idx]
+
+        if idx != 0 and acc > 0.7: print('{}: {}'.format(idx, acc))
