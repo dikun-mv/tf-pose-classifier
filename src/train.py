@@ -31,7 +31,7 @@ def load_class_data(name):
 
 
 def load_dataset():
-    return {name: load_class_data(name) for name in ['none', 'clapping', 'waving']}
+    return {name: load_class_data(name) for name in ['none', 'waving']}
 
 
 def make_vect(idx, len):
@@ -84,13 +84,3 @@ if __name__ == '__main__':
             CSVLogger('model-data/training.log')
         ]
     )
-    loss, acc = model.evaluate(
-        X_test, Y_test,
-        batch_size=8
-    )
-    print(
-        'Test loss: {}\n'.format(loss) +
-        'Test acc: {}\n'.format(acc)
-    )
-
-    model.save('model-data/pose-classifier.h5')
