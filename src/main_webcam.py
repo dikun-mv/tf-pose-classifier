@@ -65,7 +65,12 @@ if __name__ == '__main__':
         poses = estimator.inference(frame, upsample_size=4.0)
         buffer.save(poses_to_np(poses))
 
-        classes = classifier.predict(buffer.dump().reshape((1, BUFFER_SIZE, 36)))
+        p_seq = buffer.dump()
+        v_seq = np.array([p_seq[i + 1] - p_seq[i] for i in range(len(p_seq) - 1)])
+        empty = np.tile(.0, (BUFFER_SIZE, 36))
+        empty[:len(v_seq)] = v_seq
+
+        classes = classifier.predict(empty.reshape((1, BUFFER_SIZE, 36)))
 
         for i in range(len(classes)):
             idx = np.argmax(classes[i])

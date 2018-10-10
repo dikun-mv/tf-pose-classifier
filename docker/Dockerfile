@@ -9,4 +9,4 @@ RUN pip3 install tensorflow-gpu==1.4.1 keras==2.1.5 h5py opencv-python-headless 
 
 ADD . /usr/src/app
 
-CMD python3 /usr/src/app/src/main.py
+CMD python3 /usr/src/app/src/main_webcam.py
