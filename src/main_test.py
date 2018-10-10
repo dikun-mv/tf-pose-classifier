@@ -30,8 +30,9 @@ if __name__ == '__main__':
     X_test, Y_test = shuffle(np.concatenate(X_test), np.concatenate(Y_test))
     X_real, Y_real = np.concatenate(X_real), np.concatenate(Y_real)
 
-    model = get_model(len(dataset))
-    model.load_weights('model-data/model.018-0.474.hdf5')
+    # model = get_model(len(dataset))
+    # model.load_weights('model-data/model.019-0.677.hdf5')
+    model = load_model('model-data/pose-classifier.h5')
     print(model.summary())
 
     # Z_test = model.predict(X_test)

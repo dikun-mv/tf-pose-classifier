@@ -74,10 +74,10 @@ if __name__ == '__main__':
     print(model.summary())
 
     model.fit(
-        np.concatenate([X_training, X_validation]), np.concatenate([Y_training, Y_validation]),
+        X_training, Y_training,
+        validation_data=(X_validation, Y_validation),
         epochs=100,
         batch_size=8,
-        validation_split=0.3,
         callbacks=[
             ModelCheckpoint(filepath='model-data/model.{epoch:03d}-{val_loss:.3f}.hdf5', verbose=1, save_best_only=True),
             EarlyStopping(patience=10),
