@@ -1,9 +1,6 @@
-# PyCharm project settings
+**/__pycache__
+.DS_Store
 .idea
-# VS Code project settings
 .vscode
-# Training data
 data
 model-data
-# Cache
-**/__pycache__
