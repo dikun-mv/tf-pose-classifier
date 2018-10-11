@@ -77,7 +77,7 @@ if __name__ == '__main__':
         X_training, Y_training,
         validation_data=(X_validation, Y_validation),
         epochs=100,
-        batch_size=8,
+        batch_size=4,
         callbacks=[
             ModelCheckpoint(filepath='model-data/model.{epoch:03d}-{val_loss:.3f}.hdf5', verbose=1,
                             save_best_only=True),
