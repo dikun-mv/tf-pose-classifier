@@ -5,11 +5,11 @@ from keras.layers import LSTM, Dense
 def get_model(nc):
     model = Sequential()
 
-    model.add(LSTM(36, input_shape=(50, 36), return_sequences=True))
-    model.add(LSTM(72, return_sequences=False))
-    model.add(Dense(72, activation='relu'))
+    model.add(LSTM(64, return_sequences=True, input_shape=(50, 36)))
+    model.add(LSTM(64, return_sequences=True))
+    model.add(LSTM(64))
     model.add(Dense(nc, activation='softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
     return model
 

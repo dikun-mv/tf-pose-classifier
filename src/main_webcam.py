@@ -8,7 +8,7 @@ from keras.models import load_model
 
 TF_CONFIG = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
 MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
-CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/pose-classifier.h5'))
+CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/posec-3c-deep.h5'))
 BUFFER_SIZE = 50
 
 

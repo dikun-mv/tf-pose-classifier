@@ -31,7 +31,7 @@ def load_class_data(name):
 
 
 def load_dataset():
-    return {name: load_class_data(name) for name in ['none', 'waving']}
+    return {name: load_class_data(name) for name in ['none', 'clapping', 'waving']}
 
 
 def make_vect(idx, len):
@@ -79,7 +79,8 @@ if __name__ == '__main__':
         epochs=100,
         batch_size=8,
         callbacks=[
-            ModelCheckpoint(filepath='model-data/model.{epoch:03d}-{val_loss:.3f}.hdf5', verbose=1, save_best_only=True),
+            ModelCheckpoint(filepath='model-data/model.{epoch:03d}-{val_loss:.3f}.hdf5', verbose=1,
+                            save_best_only=True),
             EarlyStopping(patience=10),
             CSVLogger('model-data/training.log')
         ]
