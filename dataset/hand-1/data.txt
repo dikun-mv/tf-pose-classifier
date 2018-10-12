@@ -1,0 +1,10 @@
+dataset/hand-1/1.json
+dataset/hand-1/2.json
+dataset/hand-1/3.json
+dataset/hand-1/4.json
+dataset/hand-1/5.json
+dataset/hand-1/6.json
+dataset/hand-1/7.json
+dataset/hand-1/8.json
+dataset/hand-1/9.json
+dataset/hand-1/10.json
