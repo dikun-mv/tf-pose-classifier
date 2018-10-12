@@ -5,18 +5,12 @@ from os import path
 from tf_pose import Estimator
 from cam_reader import Reader
 from keras.models import load_model
+from utils import poses_to_np
 
 TF_CONFIG = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
 MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
-CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/posec-3c-conv.h5'))
+CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/posec-4c-conv.h5'))
 BUFFER_SIZE = 50
-
-
-def poses_to_np(poses):
-    return np.array(
-        [[poses[0].body_parts[i].x, poses[0].body_parts[i].y] if i in poses[0].body_parts else [0., 0.]
-         for i in range(18)] if poses else [[0., 0.] for _ in range(18)]
-    ).flatten()
 
 
 class RingBuffer:
@@ -50,7 +44,7 @@ class LinearBuffer:
 
 if __name__ == '__main__':
     reader = Reader(1920, 1080)
-    estimator = Estimator(MODEL_PATH, (368, 368), TF_CONFIG)
+    estimator = Estimator(MODEL_PATH, (656, 368), TF_CONFIG)
     classifier = load_model(CLASSIFIER_PATH)
     buffer = LinearBuffer(BUFFER_SIZE)
 

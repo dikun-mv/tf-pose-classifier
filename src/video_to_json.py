@@ -1,14 +1,14 @@
 import sys
 import cv2
 import json
+import numpy as np
 
 from os import path
 from tf_pose import Estimator
 
-from utils import draw_points
+from utils import draw_points, poses_to_np
 
 MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
-FRAME_SIZE = (160, 120)
 
 if __name__ == '__main__':
     video_path = sys.argv[1]
@@ -18,22 +18,22 @@ if __name__ == '__main__':
         exit(1)
 
     input = cv2.VideoCapture(video_path)
-    estimator = Estimator(MODEL_PATH, FRAME_SIZE)
-    pose_history = []
+    estimator = Estimator(MODEL_PATH, (656, 368))
+    p_seq = []
 
     while True:
         ret, frame = input.read()
         if not ret: break
 
         poses = estimator.inference(frame, upsample_size=4.0)
-        pose_history.append(
-            [[poses[0].body_parts[i].x, poses[0].body_parts[i].y] if i in poses[0].body_parts else [0., 0.] for i in
-             range(18)] if poses else [[0., 0.] for i in range(18)])
-
-        cv2.imshow('main', draw_points(frame, poses))
-        cv2.waitKey(1)
+        p_seq.append(poses_to_np(poses))
 
     input.release()
 
+    p_seq = np.array(p_seq[:50])
+    v_seq = np.array([p_seq[i + 1] - p_seq[i] for i in range(len(p_seq) - 1)])
+    empty = np.tile(.0, (50, 36))
+    empty[:len(v_seq)] = v_seq
+
     with open(video_path.split('.')[0] + '.json', 'w') as output:
-        json.dump(pose_history, output)
+        json.dump(empty.tolist(), output)

@@ -19,4 +19,4 @@ def get_model(nc):
 
 
 if __name__ == '__main__':
-    print(get_model(3).summary())
+    print(get_model(4).summary())
