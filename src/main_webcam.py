@@ -9,7 +9,7 @@ from utils import poses_to_np
 
 TF_CONFIG = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2))
 MODEL_PATH = path.realpath(path.join(path.dirname(__file__), '../models/mobilenet.pb'))
-CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/posec-3cn-conv-3k.h5'))
+CLASSIFIER_PATH = path.realpath(path.join(path.dirname(__file__), '../models/posec-3cn-conv-5k.h5'))
 BUFFER_SIZE = 50
 
 
