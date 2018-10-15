@@ -20,12 +20,11 @@ def load_batch(path):
 
 
 def load_class_data(name):
-    return {batch: load_batch('dataset/{}/data.txt'.format(name, batch)) if name != 'none' else np.tile(0., (10, 50, 36))
-            for batch in ['training']}
+    return {batch: load_batch('dataset/{}/data.txt'.format(name)) for batch in ['training', 'test']}
 
 
 def load_dataset():
-    return {name: load_class_data(name) for name in ['none', 'stand', 'hand-1', 'hand-2']}
+    return {name: load_class_data(name) for name in ['stand', 'hand-1', 'hand-2']}
 
 
 def make_vect(idx, len):
@@ -49,6 +48,9 @@ if __name__ == '__main__':
 
         X_training.append(data['training'])
         Y_training.append(np.array([make_vect(idx, len(dataset)) for _ in range(data['training'].shape[0])]))
+
+    X_training.append(np.tile(.0, (10, 50, 36)))
+    Y_training.append(np.tile(.0, (10, 3)))
 
     X_training, Y_training = shuffle(np.concatenate(X_training), np.concatenate(Y_training))
 

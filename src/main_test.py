@@ -11,53 +11,33 @@ if __name__ == '__main__':
 
     X_test = []
     Y_test = []
-    X_real = []
-    Y_real = []
 
     for idx, (name, data) in enumerate(dataset.items()):
         print(
             'Idx: {}\n'.format(idx) +
             'Class: {}\n'.format(name) +
-            'Test batch: {}\n'.format(data['test'].shape) +
-            'Real batch: {}\n'.format(data['real'].shape)
+            'Test batch: {}\n'.format(data['test'].shape)
         )
 
         X_test.append(data['test'])
         Y_test.append(np.array([make_vect(idx, len(dataset)) for _ in range(data['test'].shape[0])]))
-        X_real.append(data['real'])
-        Y_real.append(np.array([make_vect(idx, len(dataset)) for _ in range(data['real'].shape[0])]))
 
     X_test, Y_test = shuffle(np.concatenate(X_test), np.concatenate(Y_test))
-    X_real, Y_real = np.concatenate(X_real), np.concatenate(Y_real)
 
-    model = load_model('models/posec-3c-conv.h5')
+    model = load_model('models/posec-3cn-conv-3k.h5')
     print(model.summary())
 
-    # Z_test = model.predict(X_test)
-    Z_real = model.predict(X_real)
-
-    # total = 0
-    #
-    # for i in range(len(Y_test)):
-    #     y = np.argmax(Y_test[i])
-    #     z = np.argmax(Z_test[i])
-    #
-    #     if y == z:
-    #         total += 1
-    #
-    #     print('{} - {}'.format(y, z))
-    #
-    # print('{}/{}'.format(total, len(Y_test)))
+    Z_test = model.predict(X_test)
 
     total = 0
 
-    for i in range(len(Y_real)):
-        y = np.argmax(Y_real[i])
-        z = np.argmax(Z_real[i])
+    for i in range(len(Y_test)):
+        y = np.argmax(Y_test[i])
+        z = np.argmax(Z_test[i])
 
         if y == z:
             total += 1
 
-        print('{}({}) - {}({})'.format(y, Y_real[i][y], z, Z_real[i][z]))
+        print('{}({}) - {}({})'.format(y, Y_test[i][y], z, Z_test[i][z]))
 
-    print('{}/{}'.format(total, len(Y_real)))
+    print('{}/{}'.format(total, len(Y_test)))
